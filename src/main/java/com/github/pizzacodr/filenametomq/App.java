@@ -18,11 +18,12 @@ public class App
     	Path path = Paths.get("/home/yuri/watchDir");
     	WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
     	
-    	
+    	int i = 0;
     	while ((watchKey = watchService.take()) != null) {
             for (WatchEvent<?> event : watchKey.pollEvents()) {
+            	i++;
                 System.out.println(
-                  "Event kind:" + event.kind() 
+                  "Number: " + i + " vent kind:" + event.kind() 
                     + ". File affected: " + event.context() + ".");
             }
             watchKey.reset();
