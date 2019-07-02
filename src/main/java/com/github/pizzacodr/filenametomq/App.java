@@ -8,10 +8,15 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.concurrent.TimeoutException;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
 public class App 
 {
-    public static void main( String[] args ) throws IOException, InterruptedException
+    public static void main( String[] args ) throws IOException, InterruptedException, TimeoutException
     {
         //constantly watch a directory
     	WatchService watchService = FileSystems.getDefault().newWatchService();
@@ -25,6 +30,18 @@ public class App
                 System.out.println(
                   "Number: " + i + " vent kind:" + event.kind() 
                     + ". File affected: " + event.context() + ".");
+                
+                ConnectionFactory factory = new ConnectionFactory();
+                factory.setHost("localhost");
+                try (Connection connection = factory.newConnection();
+                     Channel channel = connection.createChannel()) {
+                	
+                	channel.queueDeclare("file", false, false, false, null);
+                	String message = event.context().toString();
+                	channel.basicPublish("", "file", null, message.getBytes());
+                	System.out.println(" [x] Sent '" + message + "'");
+
+                }
             }
             watchKey.reset();
         }
