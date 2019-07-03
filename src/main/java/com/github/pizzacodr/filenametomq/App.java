@@ -28,7 +28,7 @@ public class App
             for (WatchEvent<?> event : watchKey.pollEvents()) {
             	i++;
                 System.out.println(
-                  "Number: " + i + " vent kind:" + event.kind() 
+                  "Number: " + i + " Event kind:" + event.kind() 
                     + ". File affected: " + event.context() + ".");
                 
                 ConnectionFactory factory = new ConnectionFactory();
@@ -36,9 +36,10 @@ public class App
                 try (Connection connection = factory.newConnection();
                      Channel channel = connection.createChannel()) {
                 	
-                	channel.queueDeclare("file", false, false, false, null);
+                	String queueName = "filename";
+                	channel.queueDeclare(queueName, false, false, false, null);
                 	String message = event.context().toString();
-                	channel.basicPublish("", "file", null, message.getBytes());
+                	channel.basicPublish("", queueName, null, message.getBytes());
                 	System.out.println(" [x] Sent '" + message + "'");
 
                 }
