@@ -10,6 +10,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.TimeoutException;
 
+import org.aeonbits.owner.ConfigFactory;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -18,9 +20,10 @@ public class App
 {
     public static void main( String[] args ) throws IOException, InterruptedException, TimeoutException
     {
-        //constantly watch a directory
+    	ConfigFile cfg = ConfigFactory.create(ConfigFile.class, System.getProperties());
+    	
     	WatchService watchService = FileSystems.getDefault().newWatchService();
-    	Path path = Paths.get("/home/yuri/watchDir");
+    	Path path = Paths.get(cfg.watchDir());
     	WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
     	
     	int i = 0;
@@ -32,23 +35,18 @@ public class App
                     + ". File affected: " + event.context() + ".");
                 
                 ConnectionFactory factory = new ConnectionFactory();
-                factory.setHost("localhost");
+                factory.setHost(cfg.hostname());
                 try (Connection connection = factory.newConnection();
                      Channel channel = connection.createChannel()) {
-                	
-                	String queueName = "filename";
-                	channel.queueDeclare(queueName, false, false, false, null);
+
+                	channel.queueDeclare(cfg.queueName(), false, false, false, null);
                 	String message = event.context().toString();
-                	channel.basicPublish("", queueName, null, message.getBytes());
+                	channel.basicPublish("", cfg.queueName(), null, message.getBytes());
                 	System.out.println(" [x] Sent '" + message + "'");
 
                 }
             }
             watchKey.reset();
         }
-    	//read in any files names that are placed in there
-    	
-    	//insert each filename into a message queue
-    	
     }
 }
