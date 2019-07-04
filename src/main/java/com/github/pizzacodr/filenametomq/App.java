@@ -11,6 +11,8 @@ import java.nio.file.WatchService;
 import java.util.concurrent.TimeoutException;
 
 import org.aeonbits.owner.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -20,33 +22,42 @@ public class App
 {
     public static void main( String[] args ) throws IOException, InterruptedException, TimeoutException
     {
+    	Logger logger = LoggerFactory.getLogger(App.class);
+    	
     	ConfigFile cfg = ConfigFactory.create(ConfigFile.class, System.getProperties());
     	
     	WatchService watchService = FileSystems.getDefault().newWatchService();
     	Path path = Paths.get(cfg.watchDir());
+    	
+    	logger.info("Directory being watched: " + cfg.watchDir());
+    	
     	WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+    	
+    	ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(cfg.hostname());
+        
+        logger.info("Hostname: " + cfg.hostname());
+        
+        try (Connection connection = factory.newConnection();
+                Channel channel = connection.createChannel()) {
+
+           	channel.queueDeclare(cfg.queueName(), false, false, false, null);
+           	
+           	logger.info("Queue Name: " + cfg.queueName());
     	
     	int i = 0;
     	while ((watchKey = watchService.take()) != null) {
             for (WatchEvent<?> event : watchKey.pollEvents()) {
             	i++;
-                System.out.println(
-                  "Number: " + i + " Event kind:" + event.kind() 
+            	logger.info("Number: " + i + " Event kind:" + event.kind() 
                     + ". File affected: " + event.context() + ".");
                 
-                ConnectionFactory factory = new ConnectionFactory();
-                factory.setHost(cfg.hostname());
-                try (Connection connection = factory.newConnection();
-                     Channel channel = connection.createChannel()) {
-
-                	channel.queueDeclare(cfg.queueName(), false, false, false, null);
                 	String message = event.context().toString();
                 	channel.basicPublish("", cfg.queueName(), null, message.getBytes());
-                	System.out.println(" [x] Sent '" + message + "'");
-
+                	logger.info(" [x] Sent '" + message + "'");
                 }
-            }
             watchKey.reset();
+            }
         }
     }
 }
