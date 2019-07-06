@@ -19,44 +19,51 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 public class App {
+	
+	private static Path path;
+	private static ConnectionFactory factory;
+	
 	public static void main(String[] args) throws IOException, InterruptedException, TimeoutException {
 		
 		ConfigFile cfg = ConfigFactory.create(ConfigFile.class, System.getProperties());
-		System.out.println(cfg.loggingFormat());
-		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
 		Logger logger = LoggerFactory.getLogger(App.class);
 
-		WatchService watchService = FileSystems.getDefault().newWatchService();
-		Path path = Paths.get(cfg.watchDir());
-
-		logger.info("Directory being watched: " + cfg.watchDir());
+		WatchService watchService = startWatchingDir(cfg.watchDir(), logger);
 
 		WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
 
-		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost(cfg.hostname());
-
-		logger.info("Hostname: " + cfg.hostname());
+		setupConnectionFactory(cfg.hostname(), logger);
 
 		try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
 
 			channel.queueDeclare(cfg.queueName(), false, false, false, null);
-
 			logger.info("Queue Name: " + cfg.queueName());
 
-			int i = 0;
 			while ((watchKey = watchService.take()) != null) {
 				for (WatchEvent<?> event : watchKey.pollEvents()) {
-					i++;
-					logger.info("Number: " + i + " Event kind:" + event.kind() + ". File affected: " + event.context()
-							+ ".");
+					logger.info("Event kind:" + event.kind() + ". File affected: " + event.context());
 
 					String message = event.context().toString();
 					channel.basicPublish("", cfg.queueName(), null, message.getBytes());
-					logger.info(" [x] Sent '" + message + "'");
+					logger.info("Sent '" + message + "'");
 				}
 				watchKey.reset();
 			}
 		}
+	}
+
+	private static void setupConnectionFactory(String hostname, Logger logger) {
+		factory = new ConnectionFactory();
+		factory.setHost(hostname);
+		
+		logger.info("Hostname: " + hostname);
+	}
+
+	private static WatchService startWatchingDir(String watchDir, Logger logger) throws IOException {
+		WatchService watchService = FileSystems.getDefault().newWatchService();
+		path = Paths.get(watchDir);
+
+		logger.info("Directory being watched: " + watchDir);
+		return watchService;
 	}
 }
