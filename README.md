@@ -29,3 +29,7 @@ The java binary can be setup with a properties file, or the defaults will be use
 A sample logging file was provided on the [src/main/resources/logging.properties](./src/main/resources/logging.properties) .  To use your logging file, add a ` -Djava.util.logging.config.file=logging.properties` to the java command below.
 
 The command to run the binary with Java on Linux is `java –jar filenametomq-0.0.1-SNAPSHOT.jar configFilenameToMQ.properties` or just `java –jar filenametomq-0.0.1-SNAPSHOT.jar` if you are going to use the defaults.
+
+# Creating Sample Files for Testing
+
+To generate sample files for testing.  Once the java binary is running, execute the shell script [createTestFiles.sh](./src/test/resources/createTestFiles.sh) located on the src/test/resources folder.
