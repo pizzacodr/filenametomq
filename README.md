@@ -24,7 +24,7 @@ An executable will be created on the target directory.
 
 # Running the Binary:
 
-The java binary can be setup with a properties file, or the defaults will be used.  A sample properties file is available on the [src/test/resources/configFilenameToMQ.properties](./src/test/resources/configFilenameToMQ.properties) . The defaults can be seen on the class [ConfigFile.java](src/main/java/resources/logging.properties/ConfigFile.java) with the DefaultValue notation.
+The java binary can be setup with a properties file, or the defaults will be used.  A sample properties file is available on the [src/test/resources/configFilenameToMQ.properties](./src/test/resources/configFilenameToMQ.properties) . The defaults can be seen on the class [ConfigFile.java](./src/main/java/resources/logging.properties/ConfigFile.java) with the DefaultValue notation.
 
 A sample logging file was provided on the [src/main/java/resources/logging.properties](./src/main/java/resources/logging.properties) .  To use your logging file, add a ` -Djava.util.logging.config.file=logging.properties` to the java command below.
 
