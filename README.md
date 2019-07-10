@@ -6,7 +6,7 @@ The purpose of this project is to showcase the easy of setup of [RabbitMQ](https
 
 # What it does
 
-A java process watches a directory on the filesystem.  When a file a created, it writes the filename to a RabbitMQ Queue.
+A java process watches a directory on the filesystem.  When a file is created, it sends the filename to a RabbitMQ Queue.
 
 
 
