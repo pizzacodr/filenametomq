@@ -17,7 +17,7 @@ This project was developed using [Eclipse](https://www.eclipse.org/), but all th
  
 # Maven Command to Build the Binary
 
-To build a binary, run the maven command `mvn clean compile assembly:single`
+To build a binary, run the maven command `clean compile assembly:single`
 
 An executable will be created on the target directory.
 
