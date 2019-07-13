@@ -17,7 +17,7 @@ This project was developed using [Eclipse](https://www.eclipse.org/), but all th
  
 # Maven Command to Build the Binary
 
-To build a binary, run the maven command `mvn clean package`
+To build a binary, run the maven command `mvn clean compile assembly:single`
 
 An executable will be created on the target directory.
 
@@ -28,7 +28,7 @@ The java binary can be setup with a properties file, or the defaults will be use
 
 A sample logging file was provided on the [src/main/resources/logging.properties](./src/main/resources/logging.properties) .  To use your logging file, add a ` -Djava.util.logging.config.file=logging.properties` to the java command below.
 
-The command to run the binary with Java on Linux is `java –jar filenametomq-0.0.1-SNAPSHOT.jar configFilenameToMQ.properties` or just `java –jar filenametomq-0.0.1-SNAPSHOT.jar` if you are going to use the defaults.
+The command to run the binary with Java on Linux is `java –jar filenametomq-0.0.1-SNAPSHOT-jar-with-dependencies.jar configFilenameToMQ.properties` or just `java –jar filenametomq-0.0.1-SNAPSHOT-jar-with-dependencies.jar` if you are going to use the defaults.
 
 # Creating Sample Files for Testing
 
